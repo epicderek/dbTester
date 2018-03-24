@@ -56,7 +56,7 @@ public class Place extends Entity
         setFieldValue(KEY_PLACE_NAME,name[0]);
         try
         {
-            //interpretLoc(lat,lon);
+            interpretLoc(lat,lon);
         }catch(Exception ex)
         {
             if(keyCount<keys.length)
@@ -102,9 +102,10 @@ public class Place extends Entity
     public void interpretLoc(Double lati, Double lon) throws IOException
     {
         Map<String,Object> record = getItemMap();
-        Log.e("Entered","What");
+        Log.e("Places",String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
         URL url = new URL(String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        Log.e("Place","Passed?");
         StringBuilder json = new StringBuilder();
         String line;
         while((line=reader.readLine())!=null)
@@ -142,6 +143,7 @@ public class Place extends Entity
         JsonObject lal = geo.getJsonObject("Place");
         record.put(KEY_LAT,lal.getJsonNumber("lat").doubleValue());
         record.put(KEY_LNG,lal.getJsonNumber("lng").doubleValue());
+        Log.e("Places",this.toString());
     }
 
     public String toString()

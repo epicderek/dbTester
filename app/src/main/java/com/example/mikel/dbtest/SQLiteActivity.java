@@ -40,8 +40,6 @@ public class SQLiteActivity extends Activity
         dbh.addPerson(new Person(2,2222222,"Fanglin Chen","7777777777","chentc@gmail.com","fanglin@whatsapp","fanglin@facebook"));
 
         Place pla = new Place(40.441472,-79.8998760,"Home");
-        Log.v("Here?",pla.toString());
-        dbh.addPlace(pla);
         dbh.addPlace(new Place(40.4505480,-79.8998760,"Previous Abode"));
 
         Log.e("Updating: ", "Updating  events 3");
