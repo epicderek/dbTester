@@ -34,6 +34,14 @@ public class Place extends Entity
      * The counter that keeps track of the number of keys exhausted.
      */
     public static int keyCount;
+    /**
+     * A preferred means of finalizing the Place construction. If needed, this wrapper must be set immediately after the construction of the Place object.
+     */
+    public GeocodeWrapper wrap;
+    /**
+     * An indicator of whether the reverse geocode process is completed.
+     */
+    public boolean finished;
 
     static
     {
@@ -82,10 +90,18 @@ public class Place extends Entity
 
     private class ReverseGeocoder extends AsyncTask<Double,Void,Map<String,Object>>
     {
-
+        /**
+         * The actions to be executed succeeding the process of reverse geocoding.
+         * @param rec All the information obtained from reverse geocoding in its standard format of the constants in the DBConstants.
+         */
         protected void onPostExecute(Map<String,Object> rec)
         {
             getItemMap().putAll(rec);
+            Log.v("Reverse Geocoder",Place.this.toString());
+            Log.v("wrap",wrap.toString());
+            if(wrap!=null)
+                wrap.wrapUp(Place.this);
+            finished = true;
         }
 
         protected Map<String,Object> doInBackground(Double... coor)
@@ -98,13 +114,12 @@ public class Place extends Entity
                 rec = interpretLoc(lat,lon);
             }catch(Exception ex)
             {
-                Log.e("Exception",ex.toString());
                 if(keyCount<keys.length)
                     keyCount++;
-                try {
+                try
+                {
                     rec = interpretLoc(lat,lon);
-                }
-                catch(Exception ex2)
+                } catch(Exception ex2)
                 {
                     throw new RuntimeException(ex2);
                 }
