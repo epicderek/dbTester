@@ -1,5 +1,6 @@
 package com.example.mikel.dbtest.messageontap.database.Entities;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import static com.example.mikel.dbtest.messageontap.database.DBConstants.*;
@@ -54,21 +55,8 @@ public class Place extends Entity
         setFieldValue(KEY_LAT,lat);
         setFieldValue(KEY_LNG,lon);
         setFieldValue(KEY_PLACE_NAME,name[0]);
-        try
-        {
-            interpretLoc(lat,lon);
-        }catch(Exception ex)
-        {
-            if(keyCount<keys.length)
-                keyCount++;
-            try {
-                interpretLoc(lat,lon);
-            }
-            catch(Exception ex2)
-            {
-                throw new RuntimeException(ex2);
-            }
-        }
+        ReverseGeocoder rg = new ReverseGeocoder();
+        rg.execute(lat,lon);
     }
 
     /**
@@ -92,58 +80,84 @@ public class Place extends Entity
 
     }
 
-    /**
-     * A helper method that computes relevant geographic information based on the latitude and longitude given through the google map geocoding api. The results are recorded in the given map whose keys, to be filled by this method along with their proper values, are the enumerated types declared in PhyLocation.
-     * @param lati The latitude of the location.
-     * @param lon The longitude of the location.
-     * @return An object array whose first index is the formatted address, the second the types of this location, third and fourth the adjusted coordinate returned by the google map that comports with the facility located.
-     * @throws IOException
-     */
-    public void interpretLoc(Double lati, Double lon) throws IOException
+    private class ReverseGeocoder extends AsyncTask<Double,Void,Void>
     {
-        Map<String,Object> record = getItemMap();
-        Log.e("Places",String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
-        URL url = new URL(String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        Log.e("Place","Passed?");
-        StringBuilder json = new StringBuilder();
-        String line;
-        while((line=reader.readLine())!=null)
+        protected Void doInBackground(Double... coor)
         {
-            json.append(line);
-            json.append("\n");
+            double lat = coor[0];
+            double lon = coor[1];
+            try
+            {
+                interpretLoc(lat,lon);
+            }catch(Exception ex)
+            {
+                Log.e("Exception",ex.toString());
+                if(keyCount<keys.length)
+                    keyCount++;
+                try {
+                    interpretLoc(lat,lon);
+                }
+                catch(Exception ex2)
+                {
+                    throw new RuntimeException(ex2);
+                }
+            }
+            return null;
         }
-        String resp = json.substring(0,json.length()-1);
-        JsonReader read = Json.createReader(new StringReader(resp));
-        JsonObject loc = read.readObject().getJsonArray("results").getJsonObject(0);
-        JsonArray add = loc.getJsonArray("address_components");
-        for(JsonValue holder: add)
+
+        /**
+         * A helper method that computes relevant geographic information based on the latitude and longitude given through the google map geocoding api. The results are recorded in the given map whose keys, to be filled by this method along with their proper values, are the enumerated types declared in PhyLocation.
+         * @param lati The latitude of the location.
+         * @param lon The longitude of the location.
+         * @return An object array whose first index is the formatted address, the second the types of this location, third and fourth the adjusted coordinate returned by the google map that comports with the facility located.
+         * @throws IOException
+         */
+        private void interpretLoc(Double lati, Double lon) throws IOException
         {
-            JsonObject obj = (JsonObject)holder;
-            if(obj.getJsonArray("types").getString(0).equals("street_number"))
-                record.put(KEY_STREET_NUM,obj.getString("long_name"));
-            if(obj.getJsonArray("types").getString(0).equals("route"))
-                record.put(KEY_ROUTE,obj.getString("short_name"));
-            if(obj.getJsonArray("types").getString(0).equals("neighborhood"))
-                record.put(KEY_NEIGHBORHOOD,obj.getString("short_name"));
-            if(obj.getJsonArray("types").getString(0).equals("locality"))
-                record.put(KEY_LOCALITY,obj.getString("short_name"));
-            if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_2"))
-                record.put(KEY_ADMINISTRATIVE2,obj.getString("short_name"));
-            if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_1"))
-                record.put(KEY_ADMINISTRATIVE1,obj.getString("short_name"));
-            if(obj.getJsonArray("types").getString(0).equals("country"))
-                record.put(KEY_COUNTRY,obj.getString("short_name"));
-            if(obj.getJsonArray("types").getString(0).equals("postal_code"))
-                record.put(KEY_ZIP,obj.getString("short_name"));
+            Map<String,Object> record = Place.this.getItemMap();
+            Log.e("Places",String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
+            URL url = new URL(String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            Log.e("Place","Passed?");
+            StringBuilder json = new StringBuilder();
+            String line;
+            while((line=reader.readLine())!=null)
+            {
+                json.append(line);
+                json.append("\n");
+            }
+            String resp = json.substring(0,json.length()-1);
+            JsonReader read = Json.createReader(new StringReader(resp));
+            JsonObject loc = read.readObject().getJsonArray("results").getJsonObject(0);
+            JsonArray add = loc.getJsonArray("address_components");
+            for(JsonValue holder: add)
+            {
+                JsonObject obj = (JsonObject)holder;
+                if(obj.getJsonArray("types").getString(0).equals("street_number"))
+                    record.put(KEY_STREET_NUM,obj.getString("long_name"));
+                if(obj.getJsonArray("types").getString(0).equals("route"))
+                    record.put(KEY_ROUTE,obj.getString("short_name"));
+                if(obj.getJsonArray("types").getString(0).equals("neighborhood"))
+                    record.put(KEY_NEIGHBORHOOD,obj.getString("short_name"));
+                if(obj.getJsonArray("types").getString(0).equals("locality"))
+                    record.put(KEY_LOCALITY,obj.getString("short_name"));
+                if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_2"))
+                    record.put(KEY_ADMINISTRATIVE2,obj.getString("short_name"));
+                if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_1"))
+                    record.put(KEY_ADMINISTRATIVE1,obj.getString("short_name"));
+                if(obj.getJsonArray("types").getString(0).equals("country"))
+                    record.put(KEY_COUNTRY,obj.getString("short_name"));
+                if(obj.getJsonArray("types").getString(0).equals("postal_code"))
+                    record.put(KEY_ZIP,obj.getString("short_name"));
+            }
+            record.put(KEY_STREET_ADDRESS,loc.getString("formatted_address"));
+            JsonObject geo = loc.getJsonObject("geometry");
+            record.put(KEY_PLACE_TYPE,(String)loc.getJsonArray("types").toArray()[0]);
+            JsonObject lal = geo.getJsonObject("Place");
+            record.put(KEY_LAT,lal.getJsonNumber("lat").doubleValue());
+            record.put(KEY_LNG,lal.getJsonNumber("lng").doubleValue());
+            Log.e("Places",this.toString());
         }
-        record.put(KEY_STREET_ADDRESS,loc.getString("formatted_address"));
-        JsonObject geo = loc.getJsonObject("geometry");
-        record.put(KEY_PLACE_TYPE,(String)loc.getJsonArray("types").toArray()[0]);
-        JsonObject lal = geo.getJsonObject("Place");
-        record.put(KEY_LAT,lal.getJsonNumber("lat").doubleValue());
-        record.put(KEY_LNG,lal.getJsonNumber("lng").doubleValue());
-        Log.e("Places",this.toString());
     }
 
     public String toString()
