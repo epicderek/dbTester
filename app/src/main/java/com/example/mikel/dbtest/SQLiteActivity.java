@@ -17,6 +17,20 @@ import java.util.List;
 
 public class SQLiteActivity extends Activity
 {
+
+    public static class InsertionWrapper extends GeocodeWrapper
+    {
+        public InsertionWrapper(DBHandler dbh)
+        {
+            super(dbh);
+        }
+
+        public void wrapUp(Place loc)
+        {
+            db.addPlace(loc);
+            Log.v("See",db.getAllPlaces().toString());
+        }
+    }
     @Override
     /**
      * A tester method that verifies the executions of the database.
@@ -27,7 +41,7 @@ public class SQLiteActivity extends Activity
         //ssetContentView(R.layout.activity_main);
         Log.e("In SQL Activity", "On create");
         DBHandler dbh = new DBHandler(this);
-
+        InsertionWrapper iw = new InsertionWrapper(dbh);
         /**
          *Insertion into database.
          **/
@@ -39,7 +53,8 @@ public class SQLiteActivity extends Activity
         dbh.addPerson(new Person(1,2222221,"Mingquan Liu","8572049278","mikelmq99@gmail.com","minquan@whatsapp","mingquan@facebook"));
         dbh.addPerson(new Person(2,2222222,"Fanglin Chen","7777777777","chentc@gmail.com","fanglin@whatsapp","fanglin@facebook"));
 
-        dbh.addPlace(new Place(40.4505480,-79.8998760,"Previous Abode"));
+        Place loc = new Place(40.4505480,-79.8998760,"Previous Abode");
+        loc.wrap = iw;
 
         Log.e("Updating: ", "Updating  events 3");
         dbh.updateEventNameByEId("Mike's Holiday",3);
@@ -79,7 +94,8 @@ public class SQLiteActivity extends Activity
         Log.e("Reading: ", "Reading all Places..");
         List<Place> places = dbh.getAllPlaces();
 
-        for (Place place : places) {
+        for (Place place : places)
+        {
             String log = "Id: "+place.getValueByField(KEY_PLID) + " ,Place Name: " + place.getValueByField(KEY_PLACE_NAME) +
                     " ,Coordinate: " + place.getValueByField(KEY_LAT) + " ," + place.getValueByField(KEY_LNG) + " ,Street Address: " +
                     place.getValueByField(KEY_STREET_ADDRESS) + " ,Type: " + place.getValueByField(KEY_PLACE_TYPE);
