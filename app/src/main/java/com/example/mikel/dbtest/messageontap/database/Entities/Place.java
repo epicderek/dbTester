@@ -80,45 +80,51 @@ public class Place extends Entity
 
     }
 
-    private class ReverseGeocoder extends AsyncTask<Double,Void,Void>
+    private class ReverseGeocoder extends AsyncTask<Double,Void,Map<String,Object>>
     {
-        protected Void doInBackground(Double... coor)
+
+        protected void onPostExecute(Map<String,Object> rec)
+        {
+            getItemMap().putAll(rec);
+        }
+
+        protected Map<String,Object> doInBackground(Double... coor)
         {
             double lat = coor[0];
             double lon = coor[1];
+            Map<String,Object> rec;
             try
             {
-                interpretLoc(lat,lon);
+                rec = interpretLoc(lat,lon);
             }catch(Exception ex)
             {
                 Log.e("Exception",ex.toString());
                 if(keyCount<keys.length)
                     keyCount++;
                 try {
-                    interpretLoc(lat,lon);
+                    rec = interpretLoc(lat,lon);
                 }
                 catch(Exception ex2)
                 {
                     throw new RuntimeException(ex2);
                 }
             }
-            return null;
+            return rec;
         }
+
 
         /**
          * A helper method that computes relevant geographic information based on the latitude and longitude given through the google map geocoding api. The results are recorded in the given map whose keys, to be filled by this method along with their proper values, are the enumerated types declared in PhyLocation.
          * @param lati The latitude of the location.
          * @param lon The longitude of the location.
-         * @return An object array whose first index is the formatted address, the second the types of this location, third and fourth the adjusted coordinate returned by the google map that comports with the facility located.
+         * @return A map containing all the fields and their corresponding values of this Place Object.
          * @throws IOException
          */
-        private void interpretLoc(Double lati, Double lon) throws IOException
+        private Map<String,Object> interpretLoc(Double lati, Double lon) throws IOException
         {
-            Map<String,Object> record = Place.this.getItemMap();
-            Log.e("Places",String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
+            Map<String,Object> record = new HashMap<>();
             URL url = new URL(String.format("%s%s,%s%s%s",urlFirstPortion,lati,lon,urlSecondPortion,keys[keyCount]));
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            Log.e("Place","Passed?");
             StringBuilder json = new StringBuilder();
             String line;
             while((line=reader.readLine())!=null)
@@ -135,33 +141,35 @@ public class Place extends Entity
                 JsonObject obj = (JsonObject)holder;
                 if(obj.getJsonArray("types").getString(0).equals("street_number"))
                     record.put(KEY_STREET_NUM,obj.getString("long_name"));
-                if(obj.getJsonArray("types").getString(0).equals("route"))
+                else if(obj.getJsonArray("types").getString(0).equals("route"))
                     record.put(KEY_ROUTE,obj.getString("short_name"));
-                if(obj.getJsonArray("types").getString(0).equals("neighborhood"))
+                else if(obj.getJsonArray("types").getString(0).equals("neighborhood"))
                     record.put(KEY_NEIGHBORHOOD,obj.getString("short_name"));
-                if(obj.getJsonArray("types").getString(0).equals("locality"))
+                else if(obj.getJsonArray("types").getString(0).equals("locality"))
                     record.put(KEY_LOCALITY,obj.getString("short_name"));
-                if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_2"))
+                else if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_2"))
                     record.put(KEY_ADMINISTRATIVE2,obj.getString("short_name"));
-                if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_1"))
+                else if(obj.getJsonArray("types").getString(0).equals("administrative_area_level_1"))
                     record.put(KEY_ADMINISTRATIVE1,obj.getString("short_name"));
-                if(obj.getJsonArray("types").getString(0).equals("country"))
+                else if(obj.getJsonArray("types").getString(0).equals("country"))
                     record.put(KEY_COUNTRY,obj.getString("short_name"));
-                if(obj.getJsonArray("types").getString(0).equals("postal_code"))
+                else if(obj.getJsonArray("types").getString(0).equals("postal_code"))
                     record.put(KEY_ZIP,obj.getString("short_name"));
             }
             record.put(KEY_STREET_ADDRESS,loc.getString("formatted_address"));
             JsonObject geo = loc.getJsonObject("geometry");
-            record.put(KEY_PLACE_TYPE,(String)loc.getJsonArray("types").toArray()[0]);
-            JsonObject lal = geo.getJsonObject("Place");
+            record.put(KEY_PLACE_TYPE,loc.getJsonArray("types").getString(0));
+            JsonObject lal = geo.getJsonObject("location");
             record.put(KEY_LAT,lal.getJsonNumber("lat").doubleValue());
             record.put(KEY_LNG,lal.getJsonNumber("lng").doubleValue());
-            Log.e("Places",this.toString());
+            return record;
         }
     }
 
     public String toString()
     {
-        return String.format("%s,%s",getValueByField(KEY_STREET_ADDRESS));
+        if(containsField(KEY_STREET_ADDRESS))
+            Log.v("Reverse Geocode","Process Not Complete");
+        return String.format("%s",getValueByField(KEY_STREET_ADDRESS));
     }
 }

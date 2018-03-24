@@ -39,7 +39,6 @@ public class SQLiteActivity extends Activity
         dbh.addPerson(new Person(1,2222221,"Mingquan Liu","8572049278","mikelmq99@gmail.com","minquan@whatsapp","mingquan@facebook"));
         dbh.addPerson(new Person(2,2222222,"Fanglin Chen","7777777777","chentc@gmail.com","fanglin@whatsapp","fanglin@facebook"));
 
-        Place pla = new Place(40.441472,-79.8998760,"Home");
         dbh.addPlace(new Place(40.4505480,-79.8998760,"Previous Abode"));
 
         Log.e("Updating: ", "Updating  events 3");
@@ -86,6 +85,7 @@ public class SQLiteActivity extends Activity
                     place.getValueByField(KEY_STREET_ADDRESS) + " ,Type: " + place.getValueByField(KEY_PLACE_TYPE);
             // Writing Places to log
             Log.e("Places: ", log);
+            Log.e("Places",place.toString());
         }
     }
 }
