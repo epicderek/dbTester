@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +51,12 @@ public class DBHandler extends SQLiteOpenHelper
                 + KEY_EVENT_NAME + " TEXT,"+ KEY_EVENT_TYPE + " TEXT,"
                 + KEY_START_TIME + " INTEGER,"+ KEY_END_TIME + " INTEGER"
                 + ")";
-        String CREATE_PLACES_TABLE = String.format("create table %s ( %s real unsigned, %s real unsigned on conflict replace, %s text, %s text, %s integer, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s integer, primary key (%s, %s)",TABLE_PLACES,KEY_LAT,KEY_LNG,KEY_PLACE_NAME,KEY_PLACE_TYPE,KEY_STREET_NUM,KEY_ROUTE,KEY_NEIGHBORHOOD,KEY_LOCALITY,KEY_ADMINISTRATIVE2,KEY_ADMINISTRATIVE1,KEY_COUNTRY,KEY_ZIP,KEY_STREET_ADDRESS,KEY_PLID,KEY_LAT,KEY_LNG);
+        String CREATE_PLACES_TABLE = String.format("create table %s ( %s real unsigned, %s real unsigned, %s text, " +
+                "%s text, %s integer, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, " +
+                "%s integer, primary key (%s, %s))",
+                TABLE_PLACES,KEY_LAT,KEY_LNG,KEY_PLACE_NAME,KEY_PLACE_TYPE,
+                KEY_STREET_NUM,KEY_ROUTE,KEY_NEIGHBORHOOD,KEY_LOCALITY,KEY_ADMINISTRATIVE2,KEY_ADMINISTRATIVE1,
+                KEY_COUNTRY,KEY_ZIP,KEY_STREET_ADDRESS,KEY_PLID,KEY_LAT,KEY_LNG);
 
         String CREATE_EVENT_PERSON_TABLE = "CREATE TABLE " + TABLE_EVENT_PERSON + "("
                 + KEY_EP_RID + " INTEGER PRIMARY KEY, " +  KEY_EP_EVENT_ID+ " INTEGER,"
@@ -117,8 +124,8 @@ public class DBHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         // Insert into the database by each row of the table
         ContentValues values = new ContentValues();
-        values.put(KEY_PID,(long)person.getValueByField(KEY_PID));
-        values.put(KEY_CONTACT_ID,(long)person.getValueByField(KEY_CONTACT_ID));
+        values.put(KEY_PID,(Long)person.getValueByField(KEY_PID));
+        values.put(KEY_CONTACT_ID,(Long)person.getValueByField(KEY_CONTACT_ID));
         values.put(KEY_PERSON_NAME,(String)person.getValueByField(KEY_PERSON_NAME));
         values.put(KEY_PHONE_NUMBER,(String)person.getValueByField(KEY_PHONE_NUMBER));
         values.put(KEY_EMAIL_ADDRESS,(String)person.getValueByField(KEY_EMAIL_ADDRESS));
@@ -146,7 +153,8 @@ public class DBHandler extends SQLiteOpenHelper
     }
 
     // Get Person by Contact ID
-    public Person getPersonByCalendarId(long contactId) {
+    public Person getPersonByCalendarId(long contactId)
+    {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_PERSONS, null, KEY_CONTACT_ID + "=?",
@@ -199,7 +207,8 @@ public class DBHandler extends SQLiteOpenHelper
      * @param user The facebook username of such person in search of.
      * @return The reconstruction of the person as a native object.
      */
-    public Person getPersonByFacebookUser(String user) {
+    public Person getPersonByFacebookUser(String user)
+    {
         SQLiteDatabase db = getReadableDatabase();
         String where = String.format("%s = ?", KEY_FACEBOOK_USER);
         String[] vals = {user};
@@ -238,7 +247,7 @@ public class DBHandler extends SQLiteOpenHelper
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_CONTACT_ID, (long)person.getValueByField(KEY_CONTACT_ID));
+        values.put(KEY_CONTACT_ID, (Long)person.getValueByField(KEY_CONTACT_ID));
         values.put(KEY_PERSON_NAME, (String)person.getValueByField(KEY_PERSON_NAME));
         values.put(KEY_PHONE_NUMBER, (String)person.getValueByField(KEY_PHONE_NUMBER));
         values.put(KEY_EMAIL_ADDRESS, (String)person.getValueByField(KEY_EMAIL_ADDRESS));
@@ -270,7 +279,8 @@ public class DBHandler extends SQLiteOpenHelper
                 new String[] { String.valueOf(contactId) });
     }
     // Updating Person Email Address by Contact ID
-    public int updatePersonEmailAddressByContactId(String emailAddress, long contactId) {
+    public int updatePersonEmailAddressByContactId(String emailAddress, long contactId)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_EMAIL_ADDRESS, emailAddress);
@@ -281,6 +291,7 @@ public class DBHandler extends SQLiteOpenHelper
 
     // Updating Person Name by pid
     public int updatePersonNameByPId(String personName, long pid) {
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_PERSON_NAME, personName);
@@ -290,7 +301,8 @@ public class DBHandler extends SQLiteOpenHelper
     }
 
     // Updating Person Phone Number by pid
-    public int updatePersonPhoneNumberByPId(String phoneNumber, long pid) {
+    public int updatePersonPhoneNumberByPId(String phoneNumber, long pid)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_PHONE_NUMBER, phoneNumber);
@@ -300,6 +312,7 @@ public class DBHandler extends SQLiteOpenHelper
     }
     // Updating Person Email Address by pid
     public int updatePersonEmailAddressByPId(String emailAddress, long pid) {
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_EMAIL_ADDRESS, emailAddress);
@@ -314,17 +327,18 @@ public class DBHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         // Insert into the database by each row of the table
         ContentValues values = new ContentValues();
-        values.put(KEY_EID,(long)event.getValueByField(KEY_EID));
-        values.put(KEY_CALENDAR_ID,(long)event.getValueByField(KEY_CALENDAR_ID));
+        values.put(KEY_EID,(Long)event.getValueByField(KEY_EID));
+        values.put(KEY_CALENDAR_ID,(Long)event.getValueByField(KEY_CALENDAR_ID));
         values.put(KEY_EVENT_NAME,(String)event.getValueByField(KEY_EVENT_NAME));
         values.put(KEY_EVENT_TYPE,(String)event.getValueByField(KEY_EVENT_TYPE));
-        values.put(KEY_START_TIME,(long)event.getValueByField(KEY_START_TIME));
-        values.put(KEY_END_TIME,(long)event.getValueByField(KEY_END_TIME));
+        values.put(KEY_START_TIME,(Long)event.getValueByField(KEY_START_TIME));
+        values.put(KEY_END_TIME,(Long)event.getValueByField(KEY_END_TIME));
         db.insert(TABLE_EVENTS, null, values);
         db.close();
     }
 
-    public Event getEventByEId(long eid) {
+    public Event getEventByEId(long eid)
+    {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_EVENTS, new String[] { KEY_EID,
@@ -440,11 +454,11 @@ public class DBHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_CALENDAR_ID,(long)event.getValueByField(KEY_CALENDAR_ID));
+        values.put(KEY_CALENDAR_ID,(Long)event.getValueByField(KEY_CALENDAR_ID));
         values.put(KEY_EVENT_NAME,(String)event.getValueByField(KEY_EVENT_NAME));
         values.put(KEY_EVENT_TYPE,(String)event.getValueByField(KEY_EVENT_TYPE));
-        values.put(KEY_START_TIME,(long)event.getValueByField(KEY_START_TIME));
-        values.put(KEY_END_TIME,(long)event.getValueByField(KEY_END_TIME));
+        values.put(KEY_START_TIME,(Long)event.getValueByField(KEY_START_TIME));
+        values.put(KEY_END_TIME,(Long)event.getValueByField(KEY_END_TIME));
         // updating row
         return db.update(TABLE_EVENTS, values, KEY_EID + " = ?",
                 new String[] { String.valueOf(event.getValueByField(KEY_EID)) });
@@ -525,9 +539,9 @@ public class DBHandler extends SQLiteOpenHelper
     {
         SQLiteDatabase db = getReadableDatabase();
         //The where statement in which the allowance of the difference in position is specified.
-        String where = String.format("%s-%s <= ? and %s-%s <= ?",KEY_LAT,lat,KEY_LNG,lon);
+        String where = String.format("%s-(%s) <= ? and %s-(%s) <= ?",KEY_LAT,lat,KEY_LNG,lon);
         String[] allow = {String.valueOf(0.0001),String.valueOf(0.0001)};
-        Cursor cur = db.query(TABLE_PLACES,null,where,allow,null,null,String.format("LAT-%s+LNG-%s",lat,lon));
+        Cursor cur = db.query(TABLE_PLACES,null,where,allow,null,null,null);
         return cur;
     }
 
@@ -544,11 +558,11 @@ public class DBHandler extends SQLiteOpenHelper
             return cur.getLong(13);
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_LAT,(long)loc.getValueByField(KEY_LAT));
-        values.put(KEY_LNG,(long)loc.getValueByField(KEY_LNG));
+        values.put(KEY_LAT,(Double)loc.getValueByField(KEY_LAT));
+        values.put(KEY_LNG,(Double)loc.getValueByField(KEY_LNG));
         values.put(KEY_PLACE_NAME,(String)loc.getValueByField(KEY_PLACE_NAME));
         values.put(KEY_PLACE_TYPE,(String)loc.getValueByField(KEY_PLACE_TYPE));
-        values.put(KEY_STREET_NUM,(int)loc.getValueByField(KEY_STREET_NUM));
+        values.put(KEY_STREET_NUM,(Long)loc.getValueByField(KEY_STREET_NUM));
         values.put(KEY_ROUTE,(String)loc.getValueByField(KEY_ROUTE));
         values.put(KEY_NEIGHBORHOOD,(String)loc.getValueByField(KEY_NEIGHBORHOOD));
         values.put(KEY_LOCALITY,(String)loc.getValueByField(KEY_LOCALITY));
@@ -558,6 +572,7 @@ public class DBHandler extends SQLiteOpenHelper
         values.put(KEY_ZIP,(String)loc.getValueByField(KEY_ZIP));
         values.put(KEY_STREET_ADDRESS,(String)loc.getValueByField(KEY_STREET_ADDRESS));
         loc.setFieldValue(KEY_PLID,db.insert(TABLE_PLACES,null,values));
+        Log.v("Executed?",loc.toString());
         return loc.getValueByField(KEY_PID);
     }
 
@@ -689,7 +704,8 @@ public class DBHandler extends SQLiteOpenHelper
         vals.put(KEY_PLACE_NAME,name);
         String where = String.format("%s = ?",KEY_PID);
         String[] cons = {String.valueOf(id)};
-        db.update(TABLE_PLACES,vals,where,cons);
+        if(getPlaceById(id)!=null)
+            db.update(TABLE_PLACES,vals,where,cons);
         db.close();
     }
 
@@ -701,9 +717,9 @@ public class DBHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         // Insert into the database by each row of the table
         ContentValues values = new ContentValues();
-        values.put(KEY_EP_RID, (long)relationship.getValueByField(KEY_EP_RID));
-        values.put(KEY_EP_PERSON_ID, (long)relationship.getValueByField(KEY_EP_PERSON_ID));
-        values.put(KEY_EP_EVENT_ID, (long)relationship.getValueByField(KEY_EP_EVENT_ID));
+        values.put(KEY_EP_RID, (Long)relationship.getValueByField(KEY_EP_RID));
+        values.put(KEY_EP_PERSON_ID, (Long)relationship.getValueByField(KEY_EP_PERSON_ID));
+        values.put(KEY_EP_EVENT_ID, (Long)relationship.getValueByField(KEY_EP_EVENT_ID));
         values.put(KEY_EVENT_PERSON_RELATIONSHIP_TYPE, (String)relationship.getValueByField(KEY_EVENT_PERSON_RELATIONSHIP_TYPE));
         db.insert(TABLE_EVENT_PERSON, null, values);
         db.close();
@@ -848,9 +864,9 @@ public class DBHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         // Insert into the database by each row of the table
         ContentValues values = new ContentValues();
-        values.put(KEY_PP_RID, (long)relationship.getValueByField(KEY_PP_RID));
-        values.put(KEY_PP_PERSON_ID, (long)relationship.getValueByField(KEY_PP_PERSON_ID));
-        values.put(KEY_PP_PLACE_ID, (long)relationship.getValueByField(KEY_PP_PLACE_ID));
+        values.put(KEY_PP_RID, (Long)relationship.getValueByField(KEY_PP_RID));
+        values.put(KEY_PP_PERSON_ID, (Long)relationship.getValueByField(KEY_PP_PERSON_ID));
+        values.put(KEY_PP_PLACE_ID, (Long)relationship.getValueByField(KEY_PP_PLACE_ID));
         values.put(KEY_PERSON_PLACE_RELATIONSHIP_TYPE, (String)relationship.getValueByField(KEY_PERSON_PLACE_RELATIONSHIP_TYPE));
         db.insert(TABLE_PERSON_PLACE, null, values);
         db.close();
@@ -994,9 +1010,9 @@ public class DBHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
         // Insert into the database by each row of the table
         ContentValues values = new ContentValues();
-        values.put(KEY_PE_RID, (long)relationship.getValueByField(KEY_PE_RID));
-        values.put(KEY_PE_PLACE_ID, (long)relationship.getValueByField(KEY_PE_PLACE_ID));
-        values.put(KEY_PE_EVENT_ID, (long)relationship.getValueByField(KEY_PE_EVENT_ID));
+        values.put(KEY_PE_RID, (Long)relationship.getValueByField(KEY_PE_RID));
+        values.put(KEY_PE_PLACE_ID, (Long)relationship.getValueByField(KEY_PE_PLACE_ID));
+        values.put(KEY_PE_EVENT_ID, (Long)relationship.getValueByField(KEY_PE_EVENT_ID));
         values.put(KEY_PLACE_EVENT_RELATIONSHIP_TYPE, (String)relationship.getValueByField(KEY_PLACE_EVENT_RELATIONSHIP_TYPE));
         db.insert(TABLE_PLACE_EVENT, null, values);
         db.close();

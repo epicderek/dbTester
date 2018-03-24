@@ -35,4 +35,9 @@ public class Person extends Entity
         record.putAll(fvals);
     }
 
+    public String toString()
+    {
+        return String.format("%s %s %s %s %s %s %s",getValueByField(KEY_PID),getValueByField(KEY_CONTACT_ID),getValueByField(KEY_PERSON_NAME),getValueByField(KEY_PHONE_NUMBER),getValueByField(KEY_EMAIL_ADDRESS),getValueByField(KEY_WHATSAPP_USER),getValueByField(KEY_FACEBOOK_USER));
+    }
+
 }

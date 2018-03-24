@@ -45,4 +45,9 @@ public class Event extends Entity
         record.putAll(fvals);
     }
 
+    public String toString()
+    {
+        return String.format("%s %s %s %s %s %s",getValueByField(KEY_EID),getValueByField(KEY_CALENDAR_ID),getValueByField(KEY_EVENT_NAME),getValueByField(KEY_EVENT_TYPE),getValueByField(KEY_START_TIME),getValueByField(KEY_END_TIME));
+    }
+
 }

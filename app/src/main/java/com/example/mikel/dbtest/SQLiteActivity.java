@@ -15,8 +15,12 @@ import java.util.List;
  * Created by mikel on 2018/2/24.
  */
 
-public class SQLiteActivity extends Activity {
+public class SQLiteActivity extends Activity
+{
     @Override
+    /**
+     * A tester method that verifies the executions of the database.
+     */
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -25,9 +29,8 @@ public class SQLiteActivity extends Activity {
         DBHandler dbh = new DBHandler(this);
 
         /**
-         * CRUD Operations
-         * */
-        // Inserting Contacts
+         *Insertion into database.
+         **/
         Log.e("Insert: ", "Inserting ..");
         dbh.addEvent(new Event(1,77777771, "Fanglin's Birthday Party","A",1111111111,1111111117));
         dbh.addEvent(new Event(2,77777772, "Adam's Moving Day","A",1112111111,1112111117));
@@ -36,8 +39,10 @@ public class SQLiteActivity extends Activity {
         dbh.addPerson(new Person(1,2222221,"Mingquan Liu","8572049278","mikelmq99@gmail.com","minquan@whatsapp","mingquan@facebook"));
         dbh.addPerson(new Person(2,2222222,"Fanglin Chen","7777777777","chentc@gmail.com","fanglin@whatsapp","fanglin@facebook"));
 
-        dbh.addPlace(new Place(40.441472,-79.8998760,"Homd"));
-//        dbh.addPlace(new Place(40.4505480,-79.8998760,"Previous Abode"));
+        Place pla = new Place(40.441472,-79.8998760,"Home");
+        Log.v("Here?",pla.toString());
+        dbh.addPlace(pla);
+        dbh.addPlace(new Place(40.4505480,-79.8998760,"Previous Abode"));
 
         Log.e("Updating: ", "Updating  events 3");
         dbh.updateEventNameByEId("Mike's Holiday",3);
@@ -48,7 +53,8 @@ public class SQLiteActivity extends Activity {
         dbh.updatePersonEmailAddressByContactId("mliu2@wpi.edu",2222221);
 
         Log.e("Updating: ", "Updating  Preferred name of Place");
-        dbh.updatePlaceName("148 Elm St",1);
+        dbh.updatePlaceName("148 Elm St",0);
+
         // Reading all events
         Log.e("Reading: ", "Reading all events..");
         List<Event> events = dbh.getAllEvents();

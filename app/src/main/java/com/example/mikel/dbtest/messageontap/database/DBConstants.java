@@ -21,7 +21,7 @@ public class DBConstants
     public static final String KEY_PERSON_NAME = "person_name";
     public static final String KEY_PHONE_NUMBER = "phone_number";
     public static final String KEY_EMAIL_ADDRESS = "email_address";
-    public static final String KEY_WHATSAPP_USER = "what's app username";
+    public static final String KEY_WHATSAPP_USER = "whatsapp username";
     public static final String KEY_FACEBOOK_USER = "facebook username";
     /**
      * All the column names of the persons table.
@@ -46,7 +46,7 @@ public class DBConstants
     public static final String KEY_LNG = "longitude";
     public static final String KEY_PLACE_NAME = "place_name";
     public static final String KEY_PLACE_TYPE = "place_type";
-    public static final String KEY_STREET_NUM = "street number";
+    public static final String KEY_STREET_NUM = "street_number";
     public static final String KEY_ROUTE = "route";
     public static final String KEY_NEIGHBORHOOD = "neighborhood";
     public static final String KEY_LOCALITY = "locality";
