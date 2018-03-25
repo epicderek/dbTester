@@ -52,8 +52,8 @@ public class DBHandler extends SQLiteOpenHelper
                 + KEY_START_TIME + " INTEGER,"+ KEY_END_TIME + " INTEGER"
                 + ")";
         String CREATE_PLACES_TABLE = String.format("create table %s ( %s real unsigned, %s real unsigned, %s text, " +
-                "%s text, %s integer, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, " +
-                "%s integer, primary key (%s, %s))",
+                "%s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, %s text, " +
+                "%s text, primary key (%s, %s))",
                 TABLE_PLACES,KEY_LAT,KEY_LNG,KEY_PLACE_NAME,KEY_PLACE_TYPE,
                 KEY_STREET_NUM,KEY_ROUTE,KEY_NEIGHBORHOOD,KEY_LOCALITY,KEY_ADMINISTRATIVE2,KEY_ADMINISTRATIVE1,
                 KEY_COUNTRY,KEY_ZIP,KEY_STREET_ADDRESS,KEY_PLID,KEY_LAT,KEY_LNG);
@@ -553,16 +553,18 @@ public class DBHandler extends SQLiteOpenHelper
     public long addPlace(Place loc)
     {
         Cursor cur = dupSearch((double)loc.getValueByField(KEY_LAT),(double)loc.getValueByField(KEY_LNG));
+        Log.e("See","Here then?");
         //If the Place already exists in the database.
         if(cur.moveToNext())
             return cur.getLong(13);
+        Log.e("See","here?");
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_LAT,(Double)loc.getValueByField(KEY_LAT));
         values.put(KEY_LNG,(Double)loc.getValueByField(KEY_LNG));
         values.put(KEY_PLACE_NAME,(String)loc.getValueByField(KEY_PLACE_NAME));
         values.put(KEY_PLACE_TYPE,(String)loc.getValueByField(KEY_PLACE_TYPE));
-        values.put(KEY_STREET_NUM,(Long)loc.getValueByField(KEY_STREET_NUM));
+        values.put(KEY_STREET_NUM,(String)loc.getValueByField(KEY_STREET_NUM));
         values.put(KEY_ROUTE,(String)loc.getValueByField(KEY_ROUTE));
         values.put(KEY_NEIGHBORHOOD,(String)loc.getValueByField(KEY_NEIGHBORHOOD));
         values.put(KEY_LOCALITY,(String)loc.getValueByField(KEY_LOCALITY));
